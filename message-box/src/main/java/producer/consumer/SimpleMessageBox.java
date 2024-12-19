@@ -4,7 +4,7 @@ public class SimpleMessageBox implements MessageBox {
     private String message;
 
     @Override
-    synchronized public void put(String message) throws InterruptedException {
+    public synchronized void put(String message) throws InterruptedException {
         while (this.message != null) {
             wait();
         }
@@ -13,25 +13,19 @@ public class SimpleMessageBox implements MessageBox {
     }
 
     @Override
-    synchronized public String take() throws InterruptedException {
+    public synchronized String take() throws InterruptedException {
         while (message == null) {
             wait();
         }
         String msg = message;
         message = null;
         notifyAll();
-        return msg; // may not be null
+        return msg;
     }
 
     @Override
-    synchronized public String poll() {
-        String msg = message;
-        if (msg != null) {
-            message = null;
-            notifyAll();
-        }
-
-        return msg; // it may be null
+    public synchronized String poll() {
+        return message;
     }
 
 }
