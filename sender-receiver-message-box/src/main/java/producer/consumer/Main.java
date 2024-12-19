@@ -1,19 +1,29 @@
 package producer.consumer;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     private static final int N_MESSAGES = 20;
-    static final int N_RECEIVERS = 10;
+    private static final int N_RECEIVERS = 10;
 
     public static void main(String[] args) throws InterruptedException {
-        MessageBox messageBox = new SimpleMessageBox();
+        MessageBox messageBox = new BlockingQueueMessageBox();
         Sender sender = new Sender(N_MESSAGES, messageBox);
+        List<Receiver> receivers = new ArrayList<>();
+
         for (int i = 0; i < N_RECEIVERS; i++) {
-            new Receiver(messageBox).start();
+            Receiver receiver = new Receiver(messageBox);
+            receivers.add(receiver);
+            receiver.start();
         }
+
         sender.start();
         sender.join();
-        //FIXME line 16 should be taken out
-        Thread.sleep(100);
-        //TODO stoping all receivers
+
+        for (Receiver receiver : receivers) {
+            receiver.interrupt();
+        }
     }
 }
